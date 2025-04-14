@@ -47,41 +47,7 @@ function updateStockStatusMessage() {
   stockStatusMessage.textContent = infoMessage;
 }
 
-function calculateCart() {
-  totalAmount = 0;
-  itemCount = 0;
-
-  const cartItems = cartList.children;
-  let subTotal = 0;
-
-  for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      let currentProduct;
-      for (let j = 0; j < products.length; j++) {
-        if (products[j].id === cartItems[i].id) {
-          currentProduct = products[j];
-          break;
-        }
-      }
-      const quantity = parseInt(cartItems[i].querySelector('span').textContent.split('x ')[1]);
-      const itemTotal = currentProduct.price * quantity;
-      let discount = 0;
-      itemCount += quantity;
-      subTotal += itemTotal;
-      if (quantity >= 10) {
-        const discountRates = {
-          p1: 0.1,
-          p2: 0.15,
-          p3: 0.2,
-          p4: 0.05,
-          p5: 0.25,
-        };
-        discount = discountRates[currentProduct.id] || 0;
-      }
-      totalAmount += itemTotal * (1 - discount);
-    })();
-  }
-
+function getFinalDiscountRate(subTotal, totalAmount, itemCount) {
   let discountRate = 0;
 
   if (itemCount >= 30) {
@@ -91,7 +57,7 @@ function calculateCart() {
       totalAmount = subTotal * (1 - 0.25);
       discountRate = 0.25;
     } else {
-      discountRate = (subTotal - totalAmount) / subTotal;
+      discountRate = itemDiscount / subTotal;
     }
   } else {
     discountRate = (subTotal - totalAmount) / subTotal;
@@ -101,7 +67,12 @@ function calculateCart() {
     totalAmount *= 1 - 0.1;
     discountRate = Math.max(discountRate, 0.1);
   }
-  cartTotalPrice.textContent = '총액: ' + Math.round(totalAmount) + '원';
+
+  return discountRate;
+}
+
+function renderCartTotal(total, discountRate) {
+  cartTotalPrice.textContent = '총액: ' + Math.round(total) + '원';
 
   if (discountRate > 0) {
     const span = document.createElement('span');
@@ -109,7 +80,54 @@ function calculateCart() {
     span.textContent = '(' + (discountRate * 100).toFixed(1) + '% 할인 적용)';
     cartTotalPrice.appendChild(span);
   }
+}
 
+function calculateCartTotals(cartItems) {
+  let itemCount = 0;
+  let totalAmount = 0;
+  let subTotal = 0;
+
+  for (let i = 0; i < cartItems.length; i++) {
+    const cartItem = cartItems[i];
+    const quantity = parseInt(cartItem.querySelector('span').textContent.split('x ')[1]);
+
+    const currentProduct = products.find((product) => product.id === cartItem.id);
+    if (!currentProduct) {
+      continue;
+    }
+
+    const itemTotal = currentProduct.price * quantity;
+    const discountRates = {
+      p1: 0.1,
+      p2: 0.15,
+      p3: 0.2,
+      p4: 0.05,
+      p5: 0.25,
+    };
+
+    const discount = quantity >= 10 ? discountRates[currentProduct.id] || 0 : 0;
+
+    itemCount += quantity;
+    subTotal += itemTotal;
+    totalAmount += itemTotal * (1 - discount);
+  }
+
+  return { subTotal, itemCount, totalAmount };
+}
+
+function calculateCart() {
+  totalAmount = 0;
+  itemCount = 0;
+
+  const cartItems = cartList.children;
+  const { subTotal, itemCount: count, totalAmount: amount } = calculateCartTotals(cartItems);
+
+  itemCount = count;
+  totalAmount = amount;
+
+  const discountRate = getFinalDiscountRate(subTotal, totalAmount, itemCount);
+
+  renderCartTotal(totalAmount, discountRate);
   updateStockStatusMessage();
   renderBonusPoints();
 }
