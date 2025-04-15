@@ -1,29 +1,12 @@
-// 전역 상태 객체로 통합
-const cartState = {
-  products: [],
-  productDropdown: null,
-  addToCartButton: null,
-  cartList: null,
-  cartTotalPrice: null,
-  stockStatusMessage: null,
-  lastSelectedProductId: null,
-  bonusPoints: 0,
-  totalAmount: 0,
-  itemCount: 0,
-};
-
-const DISCOUNT_RATES = {
-  p1: 0.1,
-  p2: 0.15,
-  p3: 0.2,
-  p4: 0.05,
-  p5: 0.25,
-};
-
-const FLASH_SALE_INTERVAL = 30000;
-const RECOMMENDATION_INTERVAL = 60000;
-const FLASH_SALE_DISCOUNT = 0.2;
-const RECOMMENDATION_DISCOUNT = 0.05;
+import {
+  DISCOUNT_RATES,
+  FLASH_SALE_INTERVAL,
+  RECOMMENDATION_INTERVAL,
+  FLASH_SALE_DISCOUNT,
+  RECOMMENDATION_DISCOUNT,
+} from './constants';
+import { INITIAL_PRODUCTS } from './data/products';
+import { cartState } from './state';
 
 function renderProductDropdown() {
   const { productDropdown, products } = cartState;
@@ -218,16 +201,6 @@ function handleCartClick(event) {
   calculateCart();
 }
 
-function initializeProducts() {
-  return [
-    { id: 'p1', name: '상품1', price: 10000, quantity: 50 },
-    { id: 'p2', name: '상품2', price: 20000, quantity: 30 },
-    { id: 'p3', name: '상품3', price: 30000, quantity: 20 },
-    { id: 'p4', name: '상품4', price: 15000, quantity: 0 },
-    { id: 'p5', name: '상품5', price: 25000, quantity: 10 },
-  ];
-}
-
 function createUIElements() {
   const elements = {
     container: document.createElement('div'),
@@ -297,7 +270,7 @@ function setupEventListeners({ addToCartButton, cartList }) {
 }
 
 function main() {
-  cartState.products = initializeProducts();
+  cartState.products = INITIAL_PRODUCTS;
   const root = document.getElementById('app');
   const elements = createUIElements();
 
