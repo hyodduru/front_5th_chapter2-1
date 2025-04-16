@@ -4,10 +4,17 @@ import {
   RECOMMENDATION_INTERVAL,
   FLASH_SALE_DISCOUNT,
   RECOMMENDATION_DISCOUNT,
+  BONUS_POINT_UNIT,
+  LOW_STOCK_THRESHOLD,
+  BULK_PURCHASE_THRESHOLD,
+  BULK_DISCOUNT_RATE,
+  DISCOUNT_DAY_TUESDAY,
+  WEEKDAY_DISCOUNT_RATE,
 } from './constants';
 import { INITIAL_PRODUCTS } from './data/products';
 import { cartState } from './state';
 
+// UI 렌더링 함수 모음
 function renderProductDropdown() {
   const { productDropdown, products } = cartState;
   productDropdown.innerHTML = '';
@@ -24,7 +31,7 @@ function renderProductDropdown() {
 
 function renderBonusPoints() {
   const { cartTotalPrice } = cartState;
-  cartState.bonusPoints = Math.floor(cartState.totalAmount / 1000);
+  cartState.bonusPoints = Math.floor(cartState.totalAmount / BONUS_POINT_UNIT);
   let pointsTag = document.getElementById('loyalty-points');
 
   if (!pointsTag) {
@@ -40,38 +47,13 @@ function renderBonusPoints() {
 function updateStockStatusMessage() {
   const { stockStatusMessage, products } = cartState;
   const infoMessage = products
-    .filter((product) => product.quantity < 5)
+    .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
     .map(
       (product) =>
         `${product.name}: ${product.quantity > 0 ? `재고 부족 (${product.quantity}개 남음)` : '품절'}`,
     )
     .join('\n');
   stockStatusMessage.textContent = infoMessage;
-}
-
-function getFinalDiscountRate(subTotal, totalAmount, itemCount) {
-  let discountRate = 0;
-
-  if (itemCount >= 30) {
-    const bulkDiscount = subTotal * 0.25;
-    const itemDiscount = subTotal - totalAmount;
-    if (bulkDiscount > itemDiscount) {
-      totalAmount = subTotal * (1 - 0.25);
-      discountRate = 0.25;
-    } else {
-      discountRate = itemDiscount / subTotal;
-    }
-  } else {
-    discountRate = (subTotal - totalAmount) / subTotal;
-  }
-
-  if (new Date().getDay() === 2) {
-    totalAmount *= 1 - 0.1;
-    discountRate = Math.max(discountRate, 0.1);
-  }
-
-  cartState.totalAmount = totalAmount;
-  return discountRate;
 }
 
 function renderCartTotal(total, discountRate) {
@@ -83,6 +65,32 @@ function renderCartTotal(total, discountRate) {
     span.textContent = `(${(discountRate * 100).toFixed(1)}% 할인 적용)`;
     cartTotalPrice.appendChild(span);
   }
+}
+
+// 계산 로직 함수 모음
+function getFinalDiscountRate(subTotal, totalAmount, itemCount) {
+  let discountRate = 0;
+
+  if (itemCount >= BULK_PURCHASE_THRESHOLD) {
+    const bulkDiscount = subTotal * BULK_DISCOUNT_RATE;
+    const itemDiscount = subTotal - totalAmount;
+    if (bulkDiscount > itemDiscount) {
+      totalAmount = subTotal * (1 - BULK_DISCOUNT_RATE);
+      discountRate = BULK_DISCOUNT_RATE;
+    } else {
+      discountRate = itemDiscount / subTotal;
+    }
+  } else {
+    discountRate = (subTotal - totalAmount) / subTotal;
+  }
+
+  if (new Date().getDay() === DISCOUNT_DAY_TUESDAY) {
+    totalAmount *= 1 - WEEKDAY_DISCOUNT_RATE;
+    discountRate = Math.max(discountRate, WEEKDAY_DISCOUNT_RATE);
+  }
+
+  cartState.totalAmount = totalAmount;
+  return discountRate;
 }
 
 function calculateCartTotals(cartItems) {
@@ -122,6 +130,7 @@ function calculateCart() {
   renderBonusPoints();
 }
 
+// 이벤트 핸들링 모음
 function handleCartAdd() {
   const { productDropdown, products } = cartState;
   const selectedProductId = productDropdown.value;
@@ -201,6 +210,7 @@ function handleCartClick(event) {
   calculateCart();
 }
 
+// 초기 UI 세팅 모음
 function createUIElements() {
   const elements = {
     container: document.createElement('div'),
@@ -269,6 +279,7 @@ function setupEventListeners({ addToCartButton, cartList }) {
   cartList.addEventListener('click', handleCartClick);
 }
 
+// 메인 실행
 function main() {
   cartState.products = INITIAL_PRODUCTS;
   const root = document.getElementById('app');
