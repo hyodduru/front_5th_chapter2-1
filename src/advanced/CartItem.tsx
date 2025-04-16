@@ -1,4 +1,4 @@
-import { type CartItemData } from './CartContainer';
+import { type CartItemData } from './types';
 
 interface CartItemProps {
   cartItem: CartItemData;

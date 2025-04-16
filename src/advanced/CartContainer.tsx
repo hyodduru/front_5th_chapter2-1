@@ -3,22 +3,17 @@ import { useState } from 'react';
 import CartProductSelector from './CartProductSelector';
 import CartItem from './CartItem';
 
+import { calculateCartTotalPrice, getStockMessage } from './utils/cart';
 import { type CartItemData, type ProductItemData } from './types';
 
 import { BONUS_POINT_UNIT } from './constants';
-import { INITIAL_PRODUCTS } from './data/product';
+import { PRODUCTS } from './data/product';
 
 function CartContainer() {
-  const [cartTotalPrice, setCartTotalPrice] = useState(0);
   const [cartItems, setCartItems] = useState<CartItemData[]>([]);
 
+  const cartTotalPrice = calculateCartTotalPrice(cartItems);
   const bonusPoints = Math.floor(cartTotalPrice / BONUS_POINT_UNIT);
-
-  const getStockMessage = (product: ProductItemData): string | null => {
-    if (product.quantity === 0) return `${product.name}: 품절`;
-    if (product.quantity < 5) return `재고 부족 (${product.quantity}개 남음)`;
-    return null;
-  };
 
   const handleCartToAdd = (newItem: ProductItemData) => {
     setCartItems((prev) => [...prev, { ...newItem, count: 1 }]);
@@ -54,11 +49,11 @@ function CartContainer() {
         />
       ))}
       <div className="text-xl font-bold mb-4">
-        총액: {Math.round(cartTotalPrice)}원
-        <span className="text-blue-500 ml-2">(포인트: {bonusPoints})</span>
+        {`총액: ${Math.round(cartTotalPrice)}원`}
+        <span className="text-blue-500 ml-2">{`(포인트: ${bonusPoints})`}</span>
       </div>
-      <CartProductSelector products={INITIAL_PRODUCTS} onAddToCart={handleCartToAdd} />
-      {INITIAL_PRODUCTS.map((product) => {
+      <CartProductSelector products={PRODUCTS} onAddToCart={handleCartToAdd} />
+      {PRODUCTS.map((product) => {
         const message = getStockMessage(product);
         return (
           message && (

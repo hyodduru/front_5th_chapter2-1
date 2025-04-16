@@ -5,7 +5,7 @@ export interface ProductItemData {
   quantity: number;
 }
 
-export const INITIAL_PRODUCTS: ProductItemData[] = [
+export const PRODUCTS: ProductItemData[] = [
   { id: 'p1', name: '상품1', price: 10000, quantity: 50 },
   { id: 'p2', name: '상품2', price: 20000, quantity: 30 },
   { id: 'p3', name: '상품3', price: 30000, quantity: 20 },
