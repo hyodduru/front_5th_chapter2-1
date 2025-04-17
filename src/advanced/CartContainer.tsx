@@ -53,8 +53,9 @@ function CartContainer() {
         <span className="text-blue-500 ml-2">{`(포인트: ${bonusPoints})`}</span>
       </div>
       <CartProductSelector products={PRODUCTS} onAddToCart={handleCartToAdd} />
+
       {PRODUCTS.map((product) => {
-        const message = getStockMessage(product);
+        const message = getStockMessage(product, cartItems);
         return (
           message && (
             <div key={product.id} className="text-sm text-gray-500 mt-2">
