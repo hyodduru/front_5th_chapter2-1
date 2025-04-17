@@ -3,7 +3,12 @@ import { useState } from 'react';
 import CartProductSelector from './CartProductSelector';
 import CartItem from './CartItem';
 
-import { calculateCartTotalPrice, getStockMessage } from './utils/cart';
+import {
+  calculateCartTotalPrice,
+  calculateFinalDiscount,
+  getStockMessage,
+  calculateCartTotals,
+} from './utils/cart';
 import { type CartItemData, type ProductItemData } from './types';
 
 import { BONUS_POINT_UNIT } from './constants';
@@ -13,7 +18,16 @@ function CartContainer() {
   const [cartItems, setCartItems] = useState<CartItemData[]>([]);
 
   const cartTotalPrice = calculateCartTotalPrice(cartItems);
-  const bonusPoints = Math.floor(cartTotalPrice / BONUS_POINT_UNIT);
+
+  const { subTotal, itemCount, totalAmount } = calculateCartTotals(cartItems);
+
+  const { discountRate, discountedAmount } = calculateFinalDiscount(
+    subTotal,
+    itemCount,
+    totalAmount,
+  );
+
+  const bonusPoints = Math.floor(discountedAmount / BONUS_POINT_UNIT);
 
   const handleCartToAdd = (newItem: ProductItemData) => {
     setCartItems((prev) => [...prev, { ...newItem, count: 1 }]);
@@ -48,8 +62,13 @@ function CartContainer() {
           onDelete={handleCartItemRemove}
         />
       ))}
-      <div className="text-xl font-bold mb-4">
+      <div className="text-xl font-bold my-4">
         {`총액: ${Math.round(cartTotalPrice)}원`}
+        {discountRate > 0 && (
+          <span className="text-green-500 ml-2">
+            {`(${(discountRate * 100).toFixed(1)}% 할인 적용)`}
+          </span>
+        )}
         <span className="text-blue-500 ml-2">{`(포인트: ${bonusPoints})`}</span>
       </div>
       <CartProductSelector products={PRODUCTS} onAddToCart={handleCartToAdd} />
