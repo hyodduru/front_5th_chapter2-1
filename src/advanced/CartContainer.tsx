@@ -31,10 +31,27 @@ function CartContainer() {
 
   // 장바구니 관련 핸들러
   const handleCartToAdd = (newItem: ProductItemData) => {
-    setCartItems((prev) => [...prev, { ...newItem, count: 1 }]);
+    setCartItems((prev) => {
+      const existingItem = prev.find((item) => item.id === newItem.id);
+
+      if (existingItem) {
+        // 기존에 있으면 수량만 증가
+        return prev.map((item) =>
+          item.id === newItem.id
+            ? { ...item, count: item.count + 1 } // 수량을 1 증가
+            : item,
+        );
+      } else {
+        // 없으면 새 항목 추가
+        return [...prev, { ...newItem, count: 1 }];
+      }
+    });
+
+    // 제품의 수량도 업데이트
     setProducts((prev) =>
       prev.map((p) => (p.id === newItem.id ? { ...p, quantity: p.quantity - 1 } : p)),
     );
+
     setLastSelectedId(newItem.id);
   };
 

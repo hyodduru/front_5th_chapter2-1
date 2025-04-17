@@ -3,7 +3,6 @@ import { defineConfig } from 'eslint/config';
 import prettier from 'eslint-config-prettier';
 import plugImport from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
-import globals from 'globals';
 
 export default defineConfig([
   {
