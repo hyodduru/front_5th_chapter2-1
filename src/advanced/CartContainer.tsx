@@ -9,10 +9,12 @@ import { type CartItemData, type ProductItemData } from './types';
 import { BONUS_POINT_UNIT } from './constants';
 import { PRODUCTS as INITIAL_PRODUCTS } from './data/product';
 import { useFlashSale } from './hooks/useFlashSale';
+import { useRecommendation } from './hooks/useRecommendation';
 
 function CartContainer() {
   const [cartItems, setCartItems] = useState<CartItemData[]>([]);
   const [products, setProducts] = useState<ProductItemData[]>(INITIAL_PRODUCTS);
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
   const { subTotal, itemCount, totalAmount } = calculateCartTotals(cartItems);
 
@@ -23,7 +25,7 @@ function CartContainer() {
   );
 
   useFlashSale(products, setProducts);
-  // useRecommendation(products, lastSelectedId, handler);
+  useRecommendation(products, lastSelectedId, setProducts);
 
   const bonusPoints = Math.floor(discountedAmount / BONUS_POINT_UNIT);
 
@@ -32,6 +34,7 @@ function CartContainer() {
     setProducts((prev) =>
       prev.map((p) => (p.id === newItem.id ? { ...p, quantity: p.quantity - 1 } : p)),
     );
+    setLastSelectedId(newItem.id);
   };
 
   const handleCartItemRemove = (id: string) => {
