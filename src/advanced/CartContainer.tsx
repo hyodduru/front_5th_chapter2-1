@@ -16,19 +16,20 @@ function CartContainer() {
   const [products, setProducts] = useState<ProductItemData[]>(INITIAL_PRODUCTS);
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
+  // 계산 관련 로직
   const { subTotal, itemCount, totalAmount } = calculateCartTotals(cartItems);
-
   const { discountRate, discountedAmount } = calculateFinalDiscount(
     subTotal,
     itemCount,
     totalAmount,
   );
-
-  useFlashSale(products, setProducts);
-  useRecommendation(products, lastSelectedId, setProducts);
-
   const bonusPoints = Math.floor(discountedAmount / BONUS_POINT_UNIT);
 
+  // 사이드 이펙트
+  useFlashSale(products, setProducts);
+  useRecommendation(lastSelectedId, setProducts);
+
+  // 장바구니 관련 핸들러
   const handleCartToAdd = (newItem: ProductItemData) => {
     setCartItems((prev) => [...prev, { ...newItem, count: 1 }]);
     setProducts((prev) =>
@@ -48,6 +49,14 @@ function CartContainer() {
   };
 
   const handleCartItemIncrease = (id: string) => {
+    const targetProduct = products.find((p) => p.id === id);
+    if (!targetProduct) return;
+
+    if (targetProduct.quantity <= 0) {
+      alert('재고가 부족합니다.');
+      return;
+    }
+
     setCartItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, count: item.count + 1 } : item)),
     );

@@ -3,7 +3,6 @@ import { type ProductItemData } from '../types';
 import { RECOMMENDATION_DISCOUNT, RECOMMENDATION_INTERVAL } from '../constants';
 
 export function useRecommendation(
-  products: ProductItemData[],
   lastSelectedId: string | null,
   setProducts: (callback: (prev: ProductItemData[]) => ProductItemData[]) => void,
 ) {
@@ -27,7 +26,7 @@ export function useRecommendation(
               : p,
           );
 
-          alert(`✨ 추천! ${randomProduct.name} 지금 구매하면 5% 할인!`);
+          alert(`추천! ${randomProduct.name} 지금 구매하면 5% 할인!`);
           return updated;
         });
       }, RECOMMENDATION_INTERVAL);

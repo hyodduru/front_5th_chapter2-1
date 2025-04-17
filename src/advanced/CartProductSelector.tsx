@@ -20,7 +20,12 @@ export default function CartProductSelector({ products, onAddToCart }: CartProdu
 
   return (
     <>
-      <select className="border rounded p-2 mr-2" value={selectedProductId} onChange={handleChange}>
+      <select
+        id="product-select"
+        className="border rounded p-2 mr-2"
+        value={selectedProductId}
+        onChange={handleChange}
+      >
         {products.map((product) => (
           <option key={product.id} value={product.id} disabled={product.quantity === 0}>
             {`${product.name} - ${product.price}원`}

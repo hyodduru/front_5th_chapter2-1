@@ -16,7 +16,7 @@ export function useFlashSale(
         const luckyItem = availableProducts[Math.floor(Math.random() * availableProducts.length)];
 
         if (Math.random() < 0.3) {
-          alert(`⚡️ 번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+          alert(`번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
           setProducts((prev) =>
             prev.map((p) =>
               p.id === luckyItem.id
