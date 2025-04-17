@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://hyodduru.github.io/front_5th_chapter2-1/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,7 +14,10 @@
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "@vitejs/plugin-react": "^4.4.0",
+    "predeploy": "pnpm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -37,6 +41,8 @@
   },
   "dependencies": {
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "gh-pages": "^6.3.0"
   }
 }

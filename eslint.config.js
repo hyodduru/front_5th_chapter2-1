@@ -39,7 +39,11 @@ export default defineConfig([
   },
   {
     files: ['**/*.{js,mjs,cjs,jsx}'],
-    languageOptions: { globals: globals.browser },
+    languageOptions: {
+      globals: {
+        __dirname: 'readonly',
+      },
+    },
   },
   pluginReact.configs.flat.recommended,
 ]);
