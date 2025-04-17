@@ -3,21 +3,16 @@ import { useState } from 'react';
 import CartProductSelector from './CartProductSelector';
 import CartItem from './CartItem';
 
-import {
-  calculateCartTotalPrice,
-  calculateFinalDiscount,
-  getStockMessage,
-  calculateCartTotals,
-} from './utils/cart';
+import { calculateFinalDiscount, getStockMessage, calculateCartTotals } from './utils/cart';
 import { type CartItemData, type ProductItemData } from './types';
 
 import { BONUS_POINT_UNIT } from './constants';
-import { PRODUCTS } from './data/product';
+import { PRODUCTS as INITIAL_PRODUCTS } from './data/product';
+import { useFlashSale } from './hooks/useFlashSale';
 
 function CartContainer() {
   const [cartItems, setCartItems] = useState<CartItemData[]>([]);
-
-  const cartTotalPrice = calculateCartTotalPrice(cartItems);
+  const [products, setProducts] = useState<ProductItemData[]>(INITIAL_PRODUCTS);
 
   const { subTotal, itemCount, totalAmount } = calculateCartTotals(cartItems);
 
@@ -27,13 +22,25 @@ function CartContainer() {
     totalAmount,
   );
 
+  useFlashSale(products, setProducts);
+  // useRecommendation(products, lastSelectedId, handler);
+
   const bonusPoints = Math.floor(discountedAmount / BONUS_POINT_UNIT);
 
   const handleCartToAdd = (newItem: ProductItemData) => {
     setCartItems((prev) => [...prev, { ...newItem, count: 1 }]);
+    setProducts((prev) =>
+      prev.map((p) => (p.id === newItem.id ? { ...p, quantity: p.quantity - 1 } : p)),
+    );
   };
 
   const handleCartItemRemove = (id: string) => {
+    const removedItem = cartItems.find((item) => item.id === id);
+    if (removedItem) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, quantity: p.quantity + removedItem.count } : p)),
+      );
+    }
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -41,14 +48,21 @@ function CartContainer() {
     setCartItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, count: item.count + 1 } : item)),
     );
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, quantity: p.quantity - 1 } : p)));
   };
 
   const handleCartItemDecrease = (id: string) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) => (item.id === id ? { ...item, count: item.count - 1 } : item))
-        .filter((item) => item.count > 0),
-    );
+    const target = cartItems.find((item) => item.id === id);
+    if (target?.count === 1) {
+      handleCartItemRemove(id);
+    } else {
+      setCartItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, count: item.count - 1 } : item)),
+      );
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, quantity: p.quantity + 1 } : p)),
+      );
+    }
   };
 
   return (
@@ -56,6 +70,7 @@ function CartContainer() {
       <h1 className="text-2xl font-bold mb-4">장바구니</h1>
       {cartItems.map((cartItem) => (
         <CartItem
+          key={cartItem.id}
           cartItem={cartItem}
           onIncrease={handleCartItemIncrease}
           onDecrease={handleCartItemDecrease}
@@ -63,7 +78,7 @@ function CartContainer() {
         />
       ))}
       <div className="text-xl font-bold my-4">
-        {`총액: ${Math.round(cartTotalPrice)}원`}
+        {`총액: ${Math.round(discountedAmount)}원`}
         {discountRate > 0 && (
           <span className="text-green-500 ml-2">
             {`(${(discountRate * 100).toFixed(1)}% 할인 적용)`}
@@ -71,10 +86,9 @@ function CartContainer() {
         )}
         <span className="text-blue-500 ml-2">{`(포인트: ${bonusPoints})`}</span>
       </div>
-      <CartProductSelector products={PRODUCTS} onAddToCart={handleCartToAdd} />
-
-      {PRODUCTS.map((product) => {
-        const message = getStockMessage(product, cartItems);
+      <CartProductSelector products={products} onAddToCart={handleCartToAdd} />
+      {products.map((product) => {
+        const message = getStockMessage(product);
         return (
           message && (
             <div key={product.id} className="text-sm text-gray-500 mt-2">

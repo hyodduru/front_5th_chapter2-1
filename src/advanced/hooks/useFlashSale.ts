@@ -1,22 +1,35 @@
 import { useEffect } from 'react';
 import { ProductItemData } from '../types';
-import { FLASH_SALE_INTERVAL, FLASH_SALE_DISCOUNT } from '../constants';
+import { FLASH_SALE_DISCOUNT, FLASH_SALE_INTERVAL } from '../constants';
 
-export function useFlashSale(products: ProductItemData[]) {
+export function useFlashSale(
+  products: ProductItemData[],
+  setProducts: React.Dispatch<React.SetStateAction<ProductItemData[]>>,
+) {
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        const available = products.filter((p) => p.quantity > 0);
-        const luckyItem = available[Math.floor(Math.random() * available.length)];
-        if (luckyItem.quantity > 0 && Math.random() < 0.3) {
-          luckyItem.price = Math.round(luckyItem.price * (1 - FLASH_SALE_DISCOUNT));
-          alert(`번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+    const timeoutId = setTimeout(() => {
+      const intervalId = setInterval(() => {
+        const availableProducts = products.filter((p) => p.quantity > 0);
+
+        if (availableProducts.length === 0) return;
+
+        const luckyItem = availableProducts[Math.floor(Math.random() * availableProducts.length)];
+
+        if (Math.random() < 0.3) {
+          alert(`⚡️ 번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === luckyItem.id
+                ? { ...p, price: Math.round(p.price * (1 - FLASH_SALE_DISCOUNT)) }
+                : p,
+            ),
+          );
         }
       }, FLASH_SALE_INTERVAL);
 
-      return () => clearInterval(interval);
+      return () => clearInterval(intervalId);
     }, Math.random() * 10000);
 
-    return () => clearTimeout(timeout);
-  }, [products]);
+    return () => clearTimeout(timeoutId);
+  }, [products, setProducts]);
 }
