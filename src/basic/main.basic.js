@@ -4,7 +4,7 @@ import { setupFlashSale } from './events/setupFlashSale';
 import { setupRecommendation } from './events/setupRecommendation';
 import { cartState } from './state/cartState';
 import { createUIElements } from './ui/createUIElements';
-import { renderProductDropdown } from './ui/renderProductDropdown';
+import { renderCartProductSelector } from './ui/renderCartProductSelector';
 import { calculateCart } from './utils/cart';
 
 function main() {
@@ -15,13 +15,13 @@ function main() {
   // 상태 연결
   Object.assign(cartState, elements);
 
-  renderProductDropdown();
+  renderCartProductSelector();
 
   elements.productWrapper.append(
     elements.heading,
     cartState.cartList,
     cartState.cartTotalPrice,
-    cartState.productDropdown,
+    cartState.cartProductSelector,
     cartState.addToCartButton,
     cartState.stockStatusMessage,
   );

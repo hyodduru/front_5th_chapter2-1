@@ -2,7 +2,7 @@ export const cartState = {
   products: [],
   cartList: null,
   cartTotalPrice: null,
-  productDropdown: null,
+  cartProductSelector: null,
   addToCartButton: null,
   stockStatusMessage: null,
   totalAmount: 0,

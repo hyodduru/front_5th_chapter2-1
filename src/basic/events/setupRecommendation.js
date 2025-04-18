@@ -1,6 +1,6 @@
 import { RECOMMENDATION_INTERVAL, RECOMMENDATION_DISCOUNT } from '../constants/index.js';
 import { cartState } from '../state/cartState.js';
-import { renderProductDropdown } from '../ui/renderProductDropdown.js';
+import { renderCartProductSelector } from '../ui/renderCartProductSelector.js';
 
 export function setupRecommendation(products) {
   setTimeout(() => {
@@ -12,7 +12,7 @@ export function setupRecommendation(products) {
         if (suggest) {
           alert(`${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
           suggest.price = Math.round(suggest.price * (1 - RECOMMENDATION_DISCOUNT));
-          renderProductDropdown();
+          renderCartProductSelector();
         }
       }
     }, RECOMMENDATION_INTERVAL);

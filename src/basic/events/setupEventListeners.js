@@ -2,8 +2,10 @@ import { cartState } from '../state/cartState.js';
 import { calculateCart } from '../utils/cart.js';
 
 function handleCartAdd() {
-  const selectedProductId = cartState.productDropdown.value;
-  const selectedProduct = cartState.products.find((p) => p.id === selectedProductId);
+  const { cartProductSelector, products, cartList } = cartState;
+
+  const selectedProductId = cartProductSelector.value;
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
 
   if (selectedProduct && selectedProduct.quantity > 0) {
     const cartItem = document.getElementById(selectedProduct.id);
@@ -26,7 +28,7 @@ function handleCartAdd() {
           <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${selectedProduct.id}" data-change="1">+</button>
           <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${selectedProduct.id}">삭제</button>
         </div>`;
-      cartState.cartList.appendChild(newCartItem);
+      cartList.appendChild(newCartItem);
       selectedProduct.quantity--;
     }
     calculateCart();
@@ -35,6 +37,8 @@ function handleCartAdd() {
 }
 
 function handleCartClick(event) {
+  const { products } = cartState;
+
   const target = event.target;
   if (!target.classList.contains('quantity-change') && !target.classList.contains('remove-item')) {
     return;
@@ -42,7 +46,7 @@ function handleCartClick(event) {
 
   const productId = target.dataset.productId;
   const cartItem = document.getElementById(productId);
-  const product = cartState.products.find((p) => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product || !cartItem) {
     return;
   }
@@ -72,6 +76,8 @@ function handleCartClick(event) {
 }
 
 export function setupEventListeners() {
-  cartState.addToCartButton.addEventListener('click', handleCartAdd);
-  cartState.cartList.addEventListener('click', handleCartClick);
+  const { addToCartButton, cartList } = cartState;
+
+  addToCartButton.addEventListener('click', handleCartAdd);
+  cartList.addEventListener('click', handleCartClick);
 }

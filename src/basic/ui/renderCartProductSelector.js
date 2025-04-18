@@ -1,8 +1,8 @@
 import { cartState } from '../state/cartState';
 
-export function renderProductDropdown() {
-  const { productDropdown, products } = cartState;
-  productDropdown.innerHTML = '';
+export function renderCartProductSelector() {
+  const { cartProductSelector, products } = cartState;
+  cartProductSelector.innerHTML = '';
   products.forEach((product) => {
     const option = document.createElement('option');
     option.value = product.id;
@@ -10,6 +10,6 @@ export function renderProductDropdown() {
     if (product.quantity === 0) {
       option.disabled = true;
     }
-    productDropdown.appendChild(option);
+    cartProductSelector.appendChild(option);
   });
 }
