@@ -1,12 +1,12 @@
 export const cartState = {
   products: [],
-  productDropdown: null,
-  addToCartButton: null,
   cartList: null,
   cartTotalPrice: null,
+  productDropdown: null,
+  addToCartButton: null,
   stockStatusMessage: null,
-  lastSelectedProductId: null,
-  bonusPoints: 0,
   totalAmount: 0,
   itemCount: 0,
+  bonusPoints: 0,
+  lastSelectedProductId: null,
 };
